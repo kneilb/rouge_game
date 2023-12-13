@@ -36,11 +36,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn character_movement(
-    mut characters: Query<(&mut Transform, &Sprite)>,
+    mut characters: Query<&mut Transform, With<Sprite>>,
     input: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    for (mut transform, _) in &mut characters {
+    for mut transform in &mut characters {
         if input.pressed(KeyCode::W) {
             transform.translation.y += 100.0 * time.delta_seconds();
         }
