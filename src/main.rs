@@ -17,7 +17,7 @@ fn main() {
                 .build(),
         )
         .add_systems(Startup, setup)
-        .add_systems(Update, (character_movement, spawn_pig))
+        .add_systems(Update, (character_movement, spawn_pig, pig_lifetime))
         .insert_resource(Money(100.0))
         .run();
 }
@@ -75,7 +75,9 @@ pub struct Player {
 }
 
 #[derive(Component)]
-pub struct Pig {}
+pub struct Pig {
+    pub lifetime: Timer,
+}
 
 // TODO: I would have just put this on the player...!
 #[derive(Resource)]
@@ -86,13 +88,13 @@ fn spawn_pig(
     asset_server: Res<AssetServer>,
     input: Res<Input<KeyCode>>,
     mut money: ResMut<Money>,
-    player: Query<&Transform, With<Player>>,
+    query: Query<&Transform, With<Player>>,
 ) {
     if !input.just_pressed(KeyCode::Space) {
         return;
     }
 
-    let player_transform = player.single();
+    let player_transform = query.single();
 
     if money.0 < 10.0 {
         info!("Not enough cash!");
@@ -106,16 +108,30 @@ fn spawn_pig(
 
     commands.spawn((
         SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(16.0, 16.0)), // TODO: use 16x16 sprite & remove this!
-                ..default()
-            },
             texture,
             transform: *player_transform,
             ..default()
         },
-        Pig {},
-    )
+        Pig {
+            lifetime: Timer::from_seconds(2.0, TimerMode::Once),
+        },
+    ));
+}
 
-    );
+fn pig_lifetime(
+    mut commands: Commands,
+    mut money: ResMut<Money>,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut Pig)>,
+) {
+    for (pig_entity, mut pig) in &mut query {
+        pig.lifetime.tick(time.delta());
+
+        if pig.lifetime.finished() {
+            money.0 += 15.0;
+            info!("Earnt £15; money is now £{:?}", money.0);
+        }
+
+        commands.entity(pig_entity).despawn();
+    }
 }
