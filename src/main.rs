@@ -17,7 +17,8 @@ fn main() {
                 .build(),
         )
         .add_systems(Startup, setup)
-        .add_systems(Update, character_movement)
+        .add_systems(Update, (character_movement, spawn_pig))
+        .insert_resource(Money(100.0))
         .run();
 }
 
@@ -71,4 +72,50 @@ fn character_movement(
 #[derive(Component)]
 pub struct Player {
     pub speed: f32,
+}
+
+#[derive(Component)]
+pub struct Pig {}
+
+// TODO: I would have just put this on the player...!
+#[derive(Resource)]
+pub struct Money(pub f32);
+
+fn spawn_pig(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    input: Res<Input<KeyCode>>,
+    mut money: ResMut<Money>,
+    player: Query<&Transform, With<Player>>,
+) {
+    if !input.just_pressed(KeyCode::Space) {
+        return;
+    }
+
+    let player_transform = player.single();
+
+    if money.0 < 10.0 {
+        info!("Not enough cash!");
+        return;
+    }
+
+    money.0 -= 10.0;
+    info!("Spent £10 on a pig, remaining money £{:?}", money.0);
+
+    let texture = asset_server.load("pig.png");
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(16.0, 16.0)), // TODO: use 16x16 sprite & remove this!
+                ..default()
+            },
+            texture,
+            transform: *player_transform,
+            ..default()
+        },
+        Pig {},
+    )
+
+    );
 }
