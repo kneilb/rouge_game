@@ -1,8 +1,10 @@
-mod pig;
 mod character;
+mod pig;
 
+use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
 use bevy::render::camera::ScalingMode;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::character::CharacterPlugin;
 use crate::pig::PigPlugin;
@@ -21,6 +23,9 @@ fn main() {
                     ..default()
                 })
                 .build(),
+        )
+        .add_plugins(
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
         .add_plugins((PigPlugin, CharacterPlugin))
         .add_systems(Startup, setup)
