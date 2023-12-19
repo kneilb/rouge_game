@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::prelude::*;
 
 pub struct CharacterPlugin;
 
@@ -11,12 +12,10 @@ impl Plugin for CharacterPlugin {
     }
 }
 
-// #[derive(InspectorOptions)]
-// #[reflect(InspectorOptions)]
-#[derive(Component, Default, Reflect)]
-#[reflect(Component)]
+#[derive(Component, Default, InspectorOptions, Reflect)]
+#[reflect(Component, InspectorOptions)]
 pub struct Player {
-    // #[inspector(min=0.0)]
+    #[inspector(min=0.0)]
     pub speed: f32,
 }
 
