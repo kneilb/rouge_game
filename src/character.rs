@@ -6,12 +6,17 @@ impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, character_movement)
             .add_systems(Startup, create_character)
-            .insert_resource(Money(100.0));
+            .insert_resource(Money(100.0))
+            .register_type::<Player>();
     }
 }
 
-#[derive(Component)]
+// #[derive(InspectorOptions)]
+// #[reflect(InspectorOptions)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct Player {
+    // #[inspector(min=0.0)]
     pub speed: f32,
 }
 
@@ -33,6 +38,7 @@ fn create_character(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Player { speed: 100.0 },
+        Name::new("Player"),
     ));
 }
 
