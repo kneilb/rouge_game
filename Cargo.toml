@@ -16,3 +16,7 @@ opt-level = 1
 # Enable high optimisations for dependencies (including Bevy!)
 [profile.dev.package."*"]
 opt-level = 3
+
+# Workaround for compiler bug!
+[profile.dev.package."bevy-inspector-egui"]
+opt-level = 1
