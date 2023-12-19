@@ -1,5 +1,6 @@
 mod character;
 mod pig;
+mod ui;
 
 use bevy::input::common_conditions::input_toggle_active;
 use bevy::prelude::*;
@@ -8,6 +9,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::character::CharacterPlugin;
 use crate::pig::PigPlugin;
+use crate::ui::GameUiPlugin;
 
 fn main() {
     App::new()
@@ -24,10 +26,7 @@ fn main() {
                 })
                 .build(),
         )
-        .add_plugins(
-            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
-        )
-        .add_plugins((PigPlugin, CharacterPlugin))
+        .add_plugins((CharacterPlugin, GameUiPlugin, PigPlugin))
         .add_systems(Startup, setup)
         .run();
 }
